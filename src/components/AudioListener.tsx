@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { mergeTranscript } from '../utils/groqService'
 import { initSpeechRecognition, startRecognition, stopRecognition } from '../utils/speechToText'
+import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
+import '../styles/listener.css'
 
 initSpeechRecognition()
 
 const AudioListener = () => {
     const [isRecording, setIsRecording] = useState(false)
-    const [transcript, setTranscript] = useState('')
+    const [transcript, setTranscript] = useState<{ T1: string; T2: string } | null>(null)
     const [status, setStatus] = useState('Ready')
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -17,8 +19,14 @@ const AudioListener = () => {
     const animationFrameRef = useRef<number | null>(null)
     const recordingStartTimeRef = useRef<number>(0)
 
-    const SILENCE_THRESHOLD = -50 
-    const SILENCE_DURATION = 1500 
+    const isRecordingRef = useRef(isRecording)
+
+    useEffect(() => {
+        isRecordingRef.current = isRecording
+    }, [isRecording])
+
+    const SILENCE_THRESHOLD = -50
+    const SILENCE_DURATION = 1500
     const MIN_RECORDING_TIME = 750
 
     const stopRecording = () => {
@@ -36,6 +44,7 @@ const AudioListener = () => {
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
 
         setIsRecording(false)
+        stopRecognition()
     }
 
     const detectSilence = () => {
@@ -75,8 +84,8 @@ const AudioListener = () => {
     }
 
     const startRecording = async () => {
-        if (isRecording) return
-        setTranscript('')
+        if (isRecordingRef.current) return
+        setTranscript(null)
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -112,8 +121,7 @@ const AudioListener = () => {
                     }
 
                     const transcription = await mergeTranscript(audioBlob)
-                    setTranscript(transcription.T1)
-                    console.log(transcription)
+                    setTranscript(transcription)
                     setStatus('Ready')
                 }, 200)
             }
@@ -121,6 +129,7 @@ const AudioListener = () => {
             mediaRecorder.start()
             setIsRecording(true)
             setStatus('Recording...')
+            startRecognition() 
             recordingStartTimeRef.current = Date.now()
             detectSilence()
         } catch (err) {
@@ -129,39 +138,79 @@ const AudioListener = () => {
         }
     }
 
+    const toggleRecordingState = () => {
+        if (isRecordingRef.current) {
+            console.log('Stopping via toggle...')
+            stopRecording()
+        } else {
+            console.log('Starting via toggle...')
+            startRecording()
+        }
+    }
+
+
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
+        const shortcut = 'CommandOrControl+Space'
+
+        const setupGlobalShortcut = async () => {
+            if (await isRegistered(shortcut)) {
+                await unregister(shortcut)
+            }
+
+            await register(shortcut, (event) => {
+                if (event.state === 'Pressed') {
+                    toggleRecordingState()
+                }
+            })
+        }
+
+        setupGlobalShortcut()
+
+        return () => {
+            unregister(shortcut).catch(console.error)
+        }
+    }, []) 
+
+    useEffect(() => {
+        const handleLocalKeyDown = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.code === 'Space') {
                 e.preventDefault()
-                if (isRecording) {
-                    console.log('Stopping manually via shortcut...')
-                    stopRecording()
-                    stopRecognition()
-                } else {
-                    startRecording()
-                    startRecognition()
-                }
+                toggleRecordingState()
             }
         }
-        window.addEventListener('keydown', handleKeyDown)
-        return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [isRecording])
+
+        window.addEventListener('keydown', handleLocalKeyDown)
+        return () => window.removeEventListener('keydown', handleLocalKeyDown)
+    }, [])
+
+    const getStatusClass = () => {
+        if (isRecording || status === 'Recording...') return 'status-recording'
+        if (status === 'Transcribing...') return 'status-transcribing'
+        return 'status-ready'
+    }
+
+    const getStatusText = () => {
+        if (status === 'Recording...') return 'Recording...'
+        return status
+    }
 
     return (
-        <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', fontFamily: 'sans-serif' }}>
-            <div style={{ padding: '2rem', borderRadius: '1rem', border: '1px solid #ddd', backgroundColor: '#fff', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', maxWidth: '400px', }} >
-                <h2 style={{ marginTop: 0 }}>Voice Assistant</h2>
-                <p>Press <kbd style={{ background: '#eee', padding: '2px 5px', borderRadius: '4px' }}>Ctrl + Space</kbd> to record.</p>
-                <div
-                    style={{ marginTop: '1rem', padding: '0.75rem 1.5rem', borderRadius: '2rem', color: '#fff', fontWeight: 'bold', textAlign: 'center', backgroundColor: isRecording ? '#ef4444' : status === 'Transcribing...' ? '#8b5cf6' : '#3b82f6', }} >
-                    {status === 'Recording...' ? 'Listening (Speak Now)' : status}
-                </div>
+        <div className="voice-assistant-container">
+            <div className="voice-assistant-card">
+                <h2>Voice Assistant</h2>
+                <p>
+                    Press <kbd className="kbd-key">Ctrl + Space</kbd> to record.
+                </p>
+                <div className={`status-badge ${getStatusClass()}`}>{getStatusText()}</div>
             </div>
 
             {transcript && (
-                <div style={{ width: '100%', maxWidth: '500px', padding: '1.5rem', borderRadius: '0.75rem', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', }} >
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Result</div>
-                    <p style={{ margin: 0, fontSize: '1.1rem', lineHeight: '1.5', color: '#374151' }}>{transcript}</p>
+                <div className="transcript-container">
+                    <div className="transcript-label">Georgian</div>
+                    <p className="transcript-text">{transcript.T1}</p>
+
+                    <div className="transcript-label">English</div>
+                    <p className="transcript-text">{transcript.T2}</p>
                 </div>
             )}
         </div>
