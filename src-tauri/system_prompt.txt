@@ -36,4 +36,5 @@ Output:
 "Yesterday I pushed to the main branch."
 
 ### FINAL INSTRUCTION
+For phonetics and context use georgian structure and insert keywords from the English.
 Output ONLY the final translated English sentence. Do not explain your reasoning.

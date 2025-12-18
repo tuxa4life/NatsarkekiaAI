@@ -10,15 +10,22 @@ export type speechState = {
 
 const App = () => {
     const [speech, setSpeech] = useState<speechState>(null)
+    const [result, setResult] = useState('')
+
+    const getResult = async () => {
+        if (speech !== null) {
+            const result = await mergeTranscripts(`T1: ${speech.T1}\nT2: ${speech.T2}`)
+            setResult(result)
+        }
+    }
 
     useEffect(() => {
-        if (speech !== null) {
-            mergeTranscripts(`T1: ${speech.T1}\nT2: ${speech.T2}`)
-        }
+        getResult()
     }, [speech])
 
     return <div>
         <AudioListener setSpeech={setSpeech} />
+        <h1 style={{width: '70%', marginLeft: '15%'}}>{result}</h1>
     </div>
 }
 
