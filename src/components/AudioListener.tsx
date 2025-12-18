@@ -1,14 +1,15 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react'
 import { mergeTranscript } from '../utils/groqService'
 import { initSpeechRecognition, startRecognition, stopRecognition } from '../utils/speechToText'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import '../styles/listener.css'
+import { speechState } from '../App'
 
 initSpeechRecognition()
 
-const AudioListener = () => {
+const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechState>>}) => {
     const [isRecording, setIsRecording] = useState(false)
-    const [transcript, setTranscript] = useState<{ T1: string; T2: string } | null>(null)
+    const [transcript, setTranscript] = useState<speechState>(null)
     const [status, setStatus] = useState('Ready')
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -122,6 +123,7 @@ const AudioListener = () => {
 
                     const transcription = await mergeTranscript(audioBlob)
                     setTranscript(transcription)
+                    setSpeech(transcription)
                     setStatus('Ready')
                 }, 200)
             }
