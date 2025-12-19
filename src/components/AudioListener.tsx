@@ -4,6 +4,7 @@ import { initSpeechRecognition, startRecognition, stopRecognition } from '../uti
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import '../styles/listener.css'
 import { speechState } from '../App'
+import { closeDock, openDock } from './Dock'
 
 initSpeechRecognition()
 
@@ -144,9 +145,11 @@ const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechSt
         if (isRecordingRef.current) {
             console.log('Stopping via toggle...')
             stopRecording()
+            closeDock('dock')
         } else {
             console.log('Starting via toggle...')
             startRecording()
+            openDock('dock', '/dock.html')
         }
     }
 
