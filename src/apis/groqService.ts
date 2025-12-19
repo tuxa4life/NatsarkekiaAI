@@ -1,17 +1,12 @@
 import { invoke } from '@tauri-apps/api/core'
-import { getTranscript } from './speechToText'
+import { getTranscript } from '../utils/speechToText'
 
 const transcribeAudio = async (audioBlob: Blob, lang: string): Promise<string> => {
     try {
         const arrayBuffer = await audioBlob.arrayBuffer()
         const uint8Array = new Uint8Array(arrayBuffer)
-        
         const audioData = Array.from(uint8Array)
-        
-        const transcription = await invoke<string>('transcribe_audio', {
-            audioData,
-            lang,
-        })
+        const transcription = await invoke<string>('transcribe_audio', { audioData, lang })
         
         return transcription
     } catch (err) {
@@ -29,7 +24,7 @@ export const mergeTranscript = async (audioBlob: Blob) => {
         return {T1: georgian, T2: english}
     } catch (e) {
         console.log(e)
-        return {T1: 'ERROR', T2: 'ERROR'}
+        return {T1: 'Error: Transcript is empty.', T2: 'Solution: Let STT finish hearing you.'}
     }
 
 }

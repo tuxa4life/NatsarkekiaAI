@@ -44,13 +44,11 @@ export const startRecognition = (): void => {
     }
     finalTranscript = ''
     recognition?.start()
-    console.log('Recognition started (Georgian)...')
 }
 
 export const stopRecognition = (): void => {
     if (recognition) {
         recognition.stop()
-        console.log('Recognition stopped.')
     }
 }
 

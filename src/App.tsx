@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import AudioListener from './components/AudioListener'
 import './styles/app.css'
-import { mergeTranscripts } from './utils/cerebrasService';
+import { mergeTranscripts } from './apis/cerebrasService';
 
 export type speechState = {
     T1: string;

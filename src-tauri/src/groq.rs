@@ -3,13 +3,6 @@ use serde::{Deserialize, Serialize};
 use std::env;
 
 #[derive(Serialize, Deserialize)]
-struct TranscriptionRequest {
-    file: Vec<u8>,
-    model: String,
-    language: String,
-}
-
-#[derive(Serialize, Deserialize)]
 struct TranscriptionResponse {
     text: String,
 }

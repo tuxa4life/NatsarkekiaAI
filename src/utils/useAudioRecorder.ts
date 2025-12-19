@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { SpeechState, AudioRecorderRefs } from '../types'
 import { AUDIO_CONFIG, MEDIA_RECORDER_OPTIONS, ANALYSER_CONFIG } from './audioConfig'
-import { mergeTranscript } from '../utils/groqService'
+import { mergeTranscript } from '../apis/groqService'
 import { startRecognition, stopRecognition } from '../utils/speechToText'
 import { closeDock, openDock } from '../components/Dock'
 
@@ -64,7 +64,6 @@ export const useAudioRecorder = (setSpeech: (state: SpeechState | null) => void)
         if (maxVolume < AUDIO_CONFIG.SILENCE_THRESHOLD) {
             if (!refs.silenceTimer.current) {
                 refs.silenceTimer.current = setTimeout(() => {
-                    console.log('Stopping due to silence...')
                     stopRecording()
                 }, AUDIO_CONFIG.SILENCE_DURATION)
             }
@@ -138,10 +137,8 @@ export const useAudioRecorder = (setSpeech: (state: SpeechState | null) => void)
 
     const toggleRecording = useCallback(() => {
         if (refs.isRecording.current) {
-            console.log('Stopping via toggle...')
             stopRecording()
         } else {
-            console.log('Starting via toggle...')
             startRecording()
             openDock('dock', '/dock.html')
         }
