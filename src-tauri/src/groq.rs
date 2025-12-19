@@ -9,8 +9,7 @@ struct TranscriptionResponse {
 
 #[tauri::command]
 pub async fn transcribe_audio(audio_data: Vec<u8>, lang: String) -> Result<String, String> {
-    let api_key = env::var("GROQ_API_KEY")
-        .map_err(|_| "GROQ_API_KEY not found in environment".to_string())?;
+    let api_key = env::var("GROQ_API_KEY").expect("Error with API Key");
 
     let client = reqwest::Client::new();
     

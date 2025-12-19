@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AudioListener from './components/AudioListener'
 import './styles/app.css'
 import { mergeTranscripts } from './apis/cerebrasService';
+import { translateText } from './apis/deeplService';
 
 export type speechState = {
     T1: string;
@@ -13,7 +14,8 @@ const App = () => {
 
     const getResult = async () => {
         if (speech !== null) {
-            const result = await mergeTranscripts(`T1: ${speech.T1}\nT2: ${speech.T2}`)
+            const merged = await mergeTranscripts(`T1: ${speech.T1}\nT2: ${speech.T2}`)
+            const result = await translateText(merged)
             console.log(result)
         }
     }
