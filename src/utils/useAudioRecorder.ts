@@ -1,4 +1,3 @@
-// useAudioRecorder.ts
 import { useState, useRef, useCallback } from 'react'
 import { SpeechState, AudioRecorderRefs } from '../types'
 import { AUDIO_CONFIG, MEDIA_RECORDER_OPTIONS, ANALYSER_CONFIG } from './audioConfig'

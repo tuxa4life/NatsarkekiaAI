@@ -1,4 +1,3 @@
-// audioConfig.ts
 import { AudioConfig } from '../types'
 
 export const AUDIO_CONFIG: AudioConfig = {

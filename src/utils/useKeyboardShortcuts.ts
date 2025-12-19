@@ -1,4 +1,3 @@
-// useKeyboardShortcuts.ts
 import { useEffect } from 'react'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import { GLOBAL_SHORTCUT } from './audioConfig'
