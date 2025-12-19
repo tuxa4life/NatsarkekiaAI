@@ -37,7 +37,19 @@ export const openDock = async (id: string, url: string, width: number = 180, hei
     return win
 }
 
-export const closeDock = async (id: string) => {
-    const win = await WebviewWindow.getByLabel(id)
-    win?.close()
+export const closeDock = async (id: string): Promise<boolean> => {
+    try {
+        const win = await WebviewWindow.getByLabel(id)
+        
+        if (!win) {
+            console.warn(`Window with id "${id}" not found`)
+            return false
+        }
+
+        await win.close()
+        return true
+    } catch (e) {
+        console.error(`Failed to close window "${id}"`, e)
+        return false
+    }
 }

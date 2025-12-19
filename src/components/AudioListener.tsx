@@ -8,7 +8,7 @@ import { closeDock, openDock } from './Dock'
 
 initSpeechRecognition()
 
-const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechState>>}) => {
+const AudioListener = ({ setSpeech }: { setSpeech: Dispatch<SetStateAction<speechState>> }) => {
     const [isRecording, setIsRecording] = useState(false)
     const [transcript, setTranscript] = useState<speechState>(null)
     const [status, setStatus] = useState('Ready')
@@ -47,6 +47,7 @@ const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechSt
 
         setIsRecording(false)
         stopRecognition()
+        closeDock('dock')
     }
 
     const detectSilence = () => {
@@ -119,6 +120,7 @@ const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechSt
                     const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' })
                     if (audioBlob.size < 500) {
                         setStatus('Ready')
+                        closeDock('dock')
                         return
                     }
 
@@ -126,18 +128,20 @@ const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechSt
                     setTranscript(transcription)
                     setSpeech(transcription)
                     setStatus('Ready')
+                    closeDock('dock') 
                 }, 200)
             }
 
             mediaRecorder.start()
             setIsRecording(true)
             setStatus('Recording...')
-            startRecognition() 
+            startRecognition()
             recordingStartTimeRef.current = Date.now()
             detectSilence()
         } catch (err) {
             console.error('Mic Error:', err)
             setStatus('Mic Access Denied')
+            closeDock('dock') 
         }
     }
 
@@ -145,14 +149,12 @@ const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechSt
         if (isRecordingRef.current) {
             console.log('Stopping via toggle...')
             stopRecording()
-            closeDock('dock')
         } else {
             console.log('Starting via toggle...')
             startRecording()
             openDock('dock', '/dock.html')
         }
     }
-
 
     useEffect(() => {
         const shortcut = 'CommandOrControl+Space'
@@ -174,7 +176,7 @@ const AudioListener = ({setSpeech}: {setSpeech: Dispatch<SetStateAction<speechSt
         return () => {
             unregister(shortcut).catch(console.error)
         }
-    }, []) 
+    }, [])
 
     useEffect(() => {
         const handleLocalKeyDown = (e: KeyboardEvent) => {
