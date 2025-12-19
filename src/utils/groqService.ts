@@ -1,24 +1,21 @@
-import Groq from 'groq-sdk'
+import { invoke } from '@tauri-apps/api/core'
 import { getTranscript } from './speechToText'
 
-const GROQ_MODEL = 'whisper-large-v3'
-const groq = new Groq({
-    apiKey: import.meta.env.VITE_GROQ_API_KEY,
-    dangerouslyAllowBrowser: true,
-})
-
 const transcribeAudio = async (audioBlob: Blob, lang: string): Promise<string> => {
-    const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' })
-
     try {
-        const response = await groq.audio.transcriptions.create({
-            file: audioFile,
-            model: GROQ_MODEL,
-            language: lang,
+        const arrayBuffer = await audioBlob.arrayBuffer()
+        const uint8Array = new Uint8Array(arrayBuffer)
+        
+        const audioData = Array.from(uint8Array)
+        
+        const transcription = await invoke<string>('transcribe_audio', {
+            audioData,
+            lang,
         })
-        return response.text
+        
+        return transcription
     } catch (err) {
-        console.error('Groq transcription error:', err)
+        console.error('Transcription error:', err)
         throw err
     }
 }
