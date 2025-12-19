@@ -15,4 +15,4 @@ export const ANALYSER_CONFIG = {
     smoothingTimeConstant: 0.4,
 }
 
-export const GLOBAL_SHORTCUT = 'CommandOrControl+Space'
+export const GLOBAL_SHORTCUT = 'Alt+Space'

@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
+import { openDockTemporarily } from '../components/Dock'
 
 export const mergeTranscripts = async (input: string) => {
     try {
@@ -6,6 +7,7 @@ export const mergeTranscripts = async (input: string) => {
         return result
     } catch (error) {
         console.error('Error calling backend:', error)
+        openDockTemporarily('Problem executing.', false)
         return 'ERROR with Cerebras'
     }
 }

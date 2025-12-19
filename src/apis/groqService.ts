@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { getTranscript } from '../utils/speechToText'
+import { openDockTemporarily } from '../components/Dock'
 
 const transcribeAudio = async (audioBlob: Blob, lang: string): Promise<string> => {
     try {
@@ -11,6 +12,7 @@ const transcribeAudio = async (audioBlob: Blob, lang: string): Promise<string> =
         return transcription
     } catch (err) {
         console.error('Transcription error:', err)
+        openDockTemporarily('Cannot process speech.')
         throw err
     }
 }
@@ -24,6 +26,7 @@ export const mergeTranscript = async (audioBlob: Blob) => {
         return {T1: georgian, T2: english}
     } catch (e) {
         console.log(e)
+        openDockTemporarily('No speech detected.', false) // Dock is already closed when this is executed
         return {T1: 'Error: Transcript is empty.', T2: 'Solution: Let STT finish hearing you.'}
     }
 
