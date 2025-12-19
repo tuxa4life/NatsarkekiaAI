@@ -3,7 +3,7 @@ import { SpeechState, AudioRecorderRefs } from '../types'
 import { AUDIO_CONFIG, MEDIA_RECORDER_OPTIONS, ANALYSER_CONFIG } from './audioConfig'
 import { mergeTranscript } from '../apis/groqService'
 import { startRecognition, stopRecognition } from '../utils/speechToText'
-import { closeDock, openDock } from '../components/Dock'
+import { closeDock, openDock, openDockTemporarily } from '../components/Dock'
 
 export const useAudioRecorder = (setSpeech: (state: SpeechState | null) => void) => {
     const [isRecording, setIsRecording] = useState(false)
@@ -18,7 +18,7 @@ export const useAudioRecorder = (setSpeech: (state: SpeechState | null) => void)
         silenceTimer: useRef<NodeJS.Timeout | null>(null),
         animationFrame: useRef<number | null>(null),
         recordingStartTime: useRef<number>(0),
-        isRecording: useRef(isRecording)
+        isRecording: useRef(isRecording),
     }
 
     refs.isRecording.current = isRecording
@@ -132,6 +132,7 @@ export const useAudioRecorder = (setSpeech: (state: SpeechState | null) => void)
             console.error('Mic Error:', err)
             setStatus('Mic Access Denied')
             closeDock('dock')
+            openDockTemporarily('No mic access.', false)
         }
     }, [detectSilence, setSpeech])
 
@@ -148,6 +149,6 @@ export const useAudioRecorder = (setSpeech: (state: SpeechState | null) => void)
         isRecording,
         transcript,
         status,
-        toggleRecording
+        toggleRecording,
     }
 }

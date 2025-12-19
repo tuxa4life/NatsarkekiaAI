@@ -1,5 +1,5 @@
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
-import { currentMonitor } from "@tauri-apps/api/window"
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { currentMonitor } from '@tauri-apps/api/window'
 
 const openWin = async (id: string, url: string, width: number = 180, height: number = 75, initY: number = 10) => {
     let initX = 600
@@ -11,7 +11,7 @@ const openWin = async (id: string, url: string, width: number = 180, height: num
             initX = Math.round((screenWidth - width) / 2)
         }
     } catch (e) {
-        console.error("Failed to get monitor info, using default X", e)
+        console.error('Failed to get monitor info, using default X', e)
     }
 
     const win = new WebviewWindow(id, {
@@ -37,17 +37,25 @@ const openWin = async (id: string, url: string, width: number = 180, height: num
     return win
 }
 
-export const openDock = async (value: string) => {
-    const argument = encodeURIComponent(value)
-    const win = openWin('dock', `/dock.html?value=${argument}`)
+export const openDock = async (value: string, blinking = true) => {
+    const val = encodeURIComponent(value)
+    const dotBlinking = encodeURIComponent(blinking)
+    const win = openWin('dock', `/dock.html?value=${val}&blinking=${dotBlinking}`)
 
     return win
+}
+
+export const openDockTemporarily = async (value: string, blinking = true) => {
+    setTimeout(() => {
+        openDock(value, blinking)
+        setTimeout(() => closeDock('dock'), 3000)
+    }, 500)
 }
 
 export const closeDock = async (id: string): Promise<boolean> => {
     try {
         const win = await WebviewWindow.getByLabel(id)
-        
+
         if (!win) {
             console.warn(`Window with id "${id}" not found`)
             return false
