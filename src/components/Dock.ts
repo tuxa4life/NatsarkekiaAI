@@ -1,7 +1,7 @@
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
 import { currentMonitor } from "@tauri-apps/api/window"
 
-export const openDock = async (id: string, url: string, width: number = 180, height: number = 75, initY: number = 10) => {
+const openWin = async (id: string, url: string, width: number = 180, height: number = 75, initY: number = 10) => {
     let initX = 600
 
     try {
@@ -33,6 +33,13 @@ export const openDock = async (id: string, url: string, width: number = 180, hei
         console.error(e)
         return
     })
+
+    return win
+}
+
+export const openDock = async (value: string) => {
+    const argument = encodeURIComponent(value)
+    const win = openWin('dock', `/dock.html?value=${argument}`)
 
     return win
 }

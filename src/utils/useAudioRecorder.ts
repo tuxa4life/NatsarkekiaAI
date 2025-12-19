@@ -140,7 +140,7 @@ export const useAudioRecorder = (setSpeech: (state: SpeechState | null) => void)
             stopRecording()
         } else {
             startRecording()
-            openDock('dock', '/dock.html')
+            openDock('Listening...')
         }
     }, [startRecording, stopRecording])
 
