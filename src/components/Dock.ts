@@ -26,7 +26,11 @@ const openWin = async (id: string, url: string, width: number = 180, height: num
         resizable: false,
         hiddenTitle: true,
         skipTaskbar: true,
-        shadow: false,
+        shadow: false
+    })
+
+    win.once('tauri://created', async () => {
+        await win.setIgnoreCursorEvents(true)
     })
 
     win.once('tauri://error', (e) => {

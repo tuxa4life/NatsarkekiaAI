@@ -12,6 +12,7 @@
     "global-shortcut:allow-unregister-all",
     "core:webview:allow-create-webview-window",
     "core:window:allow-close",
-    "core:window:allow-set-position"
+    "core:window:allow-set-position",
+    "core:window:allow-set-ignore-cursor-events"
   ]
 }
